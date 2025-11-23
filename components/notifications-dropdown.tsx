@@ -72,7 +72,7 @@ export function NotificationsDropdown() {
           <div className="p-2">
             {notifications.map((notification) => (
               <div key={notification.id} className="flex gap-3 p-3 rounded-lg hover:bg-muted cursor-pointer">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <Image
                     src={notification.avatar || "/placeholder.svg"}
                     alt={notification.user}

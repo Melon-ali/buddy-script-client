@@ -28,8 +28,8 @@ export function Navbar() {
           <div className="flex items-center justify-between gap-4 h-full">
 
             {/* Logo */}
-            <Link href="/" className="flex-shrink-0">
-              <Image src="/logo.png" alt="BuddyScript" width={160} height={40} className="h-10 w-auto" priority />
+            <Link href="/" className="shrink-0">
+              <Image src="/logo.png" alt="BuddyScript" width={160} height={40} className="h-7 w-auto" priority />
             </Link>
 
             {/* Search Bar */}
@@ -38,7 +38,7 @@ export function Navbar() {
               <Input
                 type="search"
                 placeholder="Search Here..."
-                className="w-[424px] h-[40px] pl-12 pr-4 rounded-full bg-secondary border-secondary focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                className="w-[424px] h-10 pl-12 pr-4 rounded-full bg-secondary border-secondary focus:border-primary focus:ring-1 focus:ring-primary transition-all"
               />
             </div>
 

@@ -46,15 +46,15 @@ export function RightSidebar() {
           {friendRequests.map((request) => (
             <div key={request.id} className="bg-secondary/30 p-3 rounded-lg">
               <div className="flex items-center gap-3 mb-3">
-                <div className="h-10 w-10 rounded-full bg-muted overflow-hidden flex-shrink-0">
-                  <Image
-                    src={request.image || "/placeholder.svg"}
-                    alt={request.name}
-                    width={40}
-                    height={40}
-                    className="object-cover"
-                  />
-                </div>
+                <div className="h-10 w-10 rounded-full bg-muted overflow-hidden shrink-0">
+                    <Image
+                      src={request.image || "/placeholder.svg"}
+                      alt={request.name}
+                      width={40}
+                      height={40}
+                      className="object-cover"
+                    />
+                  </div>
                 <div>
                   <p className="font-medium text-sm">{request.name}</p>
                   <p className="text-xs text-muted-foreground">{request.mutualFriends} Mutual Friends</p>

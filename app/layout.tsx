@@ -4,6 +4,8 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Toaster } from "sonner";
+import ReduxProvider from "@/redux/ReduxProvider";
 
 const poppins = Poppins({
   weight: ["100", "300", "400", "500", "600", "700", "800"],
@@ -33,7 +35,10 @@ export default function RootLayout({
         >
           {/* Global padding for fixed navbars */}
           <div className="pt-[75px] pb-[65px] h-screen overflow-hidden">
-            {children}
+            <ReduxProvider>
+              <Toaster richColors position="top-center" />
+              {children}
+            </ReduxProvider>
           </div>
 
           <ThemeToggle />
