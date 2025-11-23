@@ -1,0 +1,158 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Base colors derived from attached common.css/main.css */
+  --primary: #1890ff;
+  --primary-foreground: #ffffff;
+
+  --background: #f0f2f5; /* --bg1 */
+  --foreground: #1a202c; /* --color1 */
+
+  --card: #ffffff; /* --bg2 */
+  --card-foreground: #1a202c;
+
+  --popover: #ffffff;
+  --popover-foreground: #1a202c;
+
+  --secondary: #f5f5f5; /* --bg3 */
+  --secondary-foreground: #1a202c;
+
+  --muted: #f0f2f5;
+  --muted-foreground: #666666; /* --color7 */
+
+  --accent: #f3f9ff;
+  --accent-foreground: #1890ff;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #e8e8e8;
+  --input: #f5f5f5;
+  --ring: #1890ff;
+
+  --radius: 0.5rem;
+
+  /* Sidebar specific based on attachment structure */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a202c;
+  --sidebar-primary: #1890ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f3f9ff;
+  --sidebar-accent-foreground: #1890ff;
+  --sidebar-border: #e8e8e8;
+  --sidebar-ring: #1890ff;
+}
+
+.dark {
+  /* Dark mode mapping based on main.css analysis (._dark_wrapper) */
+  --background: #232e42; /* --bg6 */
+  --foreground: #ffffff;
+
+  --card: #112032; /* --bg5 - darker cards in dark mode per CSS */
+  --card-foreground: #ffffff;
+
+  --popover: #112032;
+  --popover-foreground: #ffffff;
+
+  --secondary: #1a202c;
+  --secondary-foreground: #ffffff;
+
+  --muted: #1a202c;
+  --muted-foreground: #a0aec0;
+
+  --accent: #2c3e50;
+  --accent-foreground: #ffffff;
+
+  --destructive: #7f1d1d;
+  --destructive-foreground: #ffffff;
+
+  --border: #2d3748;
+  --input: #2d3748;
+  --ring: #1890ff;
+
+  --sidebar: #232e42;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #1890ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #2c3e50;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2d3748;
+  --sidebar-ring: #1890ff;
+}
+
+@theme inline {
+  --font-sans: "Poppins", system-ui, -apple-system, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom scrollbar from main.css */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d9dedd;
+  border-radius: 10px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
