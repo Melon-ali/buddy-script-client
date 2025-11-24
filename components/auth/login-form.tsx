@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import Image from "next/image"
+import { signIn } from "next-auth/react";
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
@@ -19,8 +20,8 @@ export function LoginForm() {
     console.log("Login:", { email, password, rememberMe })
   }
 
-  const handleGoogleLogin = () => {
-    console.log("Google login")
+  const handleGoogleLogin = (event: any) => {
+    signIn("google", { callbackUrl: "http://localhost:3000/feed" });
   }
 
   return (
@@ -33,7 +34,7 @@ export function LoginForm() {
         <div className="mb-7 flex justify-center">
           {/* Logo */}
             <Link href="/" className="shrink-0">
-              <Image src="/logo.png" alt="BuddyScript" width={160} height={40} className="h-8 w-auto" priority />
+              <Image src="/images/logo.png" alt="BuddyScript" width={160} height={40} className="h-8 w-auto" priority />
             </Link>
         </div>
 

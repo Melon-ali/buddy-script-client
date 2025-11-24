@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import Image from "next/image"
+import { signIn } from "next-auth/react"
 
 export function RegistrationForm() {
   const [email, setEmail] = useState("")
@@ -34,8 +35,7 @@ export function RegistrationForm() {
   }
 
   const handleGoogleRegistration = () => {
-    console.log("Google registration")
-    // Add your Google registration logic here
+   signIn("google", { callbackUrl: "http://localhost:3000/feed" });
   }
 
   return (
@@ -43,7 +43,7 @@ export function RegistrationForm() {
       {/* Logo */}
       <div className="mb-7 flex justify-center">
         <Link href="/" className="shrink-0">
-              <Image src="/logo.png" alt="BuddyScript" width={160} height={40} className="h-8 w-auto" priority />
+              <Image src="/images/logo.png" alt="BuddyScript" width={160} height={40} className="h-8 w-auto" priority />
             </Link>
       </div>
 

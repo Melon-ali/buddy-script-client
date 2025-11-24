@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { NotificationsDropdown } from "@/components/notifications-dropdown"
+import LogoutButton from "./logout/logoutButton"
 
 export function Navbar() {
   const [showSearch, setShowSearch] = useState(false)
@@ -29,7 +30,7 @@ export function Navbar() {
 
             {/* Logo */}
             <Link href="/" className="shrink-0">
-              <Image src="/logo.png" alt="BuddyScript" width={160} height={40} className="h-7 w-auto" priority />
+              <Image src="/images/logo.png" alt="BuddyScript" width={160} height={40} className="h-7 w-auto" priority />
             </Link>
 
             {/* Search Bar */}
@@ -119,10 +120,14 @@ export function Navbar() {
 
                   <DropdownMenuSeparator />
 
-                  <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
+                  {/* <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log Out</span>
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
+                  <div className="cursor-pointer items-center">
+                    <LogoutButton  />
+                  </div>
+                  
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
