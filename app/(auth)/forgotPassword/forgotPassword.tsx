@@ -10,7 +10,7 @@ interface Props {
   setEmail: (email: string) => void;
 }
 
-const ForgetPassword = ({ setStep, setEmail }: Props) => {
+const ForgotPassword = ({ setStep, setEmail }: Props) => {
   const [forgetEmail, setForgetEmail] = useState<string>();
   console.log(forgetEmail)
   const [sendOtp] = useSendOtpMutation();
@@ -43,17 +43,17 @@ const ForgetPassword = ({ setStep, setEmail }: Props) => {
 
   return (
     <form onSubmit={handleSendOtp} className="space-y-4">
-      <label className="text-sm">Email</label>
+      <label className="text-sm text-gray-900">Email</label>
       <input
         name="email"
         type="email"
         required
         placeholder="example@email.com"
-        className="w-full rounded-md border px-3 py-2"
+        className="mt-1 block w-full rounded-md border border-gray-500 px-3 py-2 bg-white-600 text-gray-900 focus:outline-none focus:ring-gray-900"
       />
       <button
         type="submit"
-        className="w-full bg-green-600 py-2 text-white rounded-md"
+        className="w-full bg-gray-900 py-2 text-white rounded-md"
       >
         {loading ? "Sending..." : "Send OTP"}
       </button>
@@ -61,4 +61,4 @@ const ForgetPassword = ({ setStep, setEmail }: Props) => {
   );
 };
 
-export default ForgetPassword;
+export default ForgotPassword;

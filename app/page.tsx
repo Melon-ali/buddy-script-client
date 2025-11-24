@@ -18,11 +18,6 @@ export default function HomePage() {
               Register
             </Button>
           </Link>
-          <Link href="/feed">
-            <Button size="lg" variant="default" className="px-8 bg-blue-600 hover:bg-blue-700">
-              View Feed
-            </Button>
-          </Link>
         </div>
       </div>
     </main>

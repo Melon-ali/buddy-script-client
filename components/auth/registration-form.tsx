@@ -1,50 +1,76 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import Image from "next/image"
-import { signIn } from "next-auth/react"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useUserRegisterMutation } from "@/redux/features/auth/userApi";
 
 export function RegistrationForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [repeatPassword, setRepeatPassword] = useState("")
-  const [agreeToTerms, setAgreeToTerms] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const router = useRouter();
+  const [userRegister, { isLoading }] = useUserRegisterMutation(); // Redux API hook
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
     if (password !== repeatPassword) {
-      alert("Passwords do not match!")
-      return
+      toast.error("Passwords do not match!");
+      return;
     }
 
     if (!agreeToTerms) {
-      alert("Please agree to the terms and conditions")
-      return
+      toast.error("Please agree to terms and conditions");
+      return;
     }
 
-    console.log("Registration:", { email, password })
-    // Add your registration logic here
-  }
+    try {
+      const payload = { email, password };
+      const res: any = await userRegister(payload).unwrap(); // Redux API call
 
-  const handleGoogleRegistration = () => {
-   signIn("google", { callbackUrl: "http://localhost:3000/feed" });
-  }
+      if (res?.success) {
+        toast.success("Registration successful!");
+        router.push("/login"); // redirect to login after registration
+      } else {
+        toast.error(res?.message || "Registration failed!");
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Registration failed!");
+    }
+  };
+
+  const handleGoogleRegistration = async () => {
+    try {
+      await signIn("google", { callbackUrl: "/feed" });
+    } catch (err) {
+      toast.error("Google registration failed");
+    }
+  };
 
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8">
       {/* Logo */}
       <div className="mb-7 flex justify-center">
         <Link href="/" className="shrink-0">
-              <Image src="/images/logo.png" alt="BuddyScript" width={160} height={40} className="h-8 w-auto" priority />
-            </Link>
+          <Image
+            src="/images/logo.png"
+            alt="BuddyScript"
+            width={160}
+            height={40}
+            className="h-8 w-auto"
+            priority
+          />
+        </Link>
       </div>
 
       {/* Header */}
@@ -53,15 +79,21 @@ export function RegistrationForm() {
         <h1 className="text-3xl text-gray-900">Registration</h1>
       </div>
 
-      {/* Google Button */}
+      {/* Google Registration */}
       <Button
         type="button"
         variant="outline"
         className="w-full mb-10 h-12 text-base bg-transparent"
         onClick={handleGoogleRegistration}
       >
-        <Image src="/images/google.svg" alt="Google" width={20} height={20} className="inline-block mr-2" />
-        Register with google
+        <Image
+          src="/images/google.svg"
+          alt="Google"
+          width={20}
+          height={20}
+          className="inline-block mr-2"
+        />
+        Register with Google
       </Button>
 
       {/* Divider */}
@@ -133,8 +165,8 @@ export function RegistrationForm() {
 
         {/* Submit Button */}
         <div className="pt-6">
-          <Button type="submit" className="w-full h-12 text-base font-medium">
-            Register now
+          <Button type="submit" className="w-full h-12 text-base font-medium" disabled={isLoading}>
+            {isLoading ? "Registering..." : "Register now"}
           </Button>
         </div>
       </form>
@@ -149,5 +181,5 @@ export function RegistrationForm() {
         </p>
       </div>
     </div>
-  )
+  );
 }

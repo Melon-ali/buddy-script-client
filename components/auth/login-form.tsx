@@ -1,50 +1,75 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import Image from "next/image"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useLoginUserMutation } from "@/redux/features/auth/userApi";
+import { toast } from "sonner";
 import { signIn } from "next-auth/react";
 
 export function LoginForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [rememberMe, setRememberMe] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Login:", { email, password, rememberMe })
-  }
+  // RTK Query mutation
+  const [loginUser, { isLoading }] = useLoginUserMutation();
 
-  const handleGoogleLogin = (event: any) => {
-    signIn("google", { callbackUrl: "http://localhost:3000/feed" });
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      toast.error("Email and password are required");
+      return;
+    }
+
+    try {
+      const payload = { email, password };
+      const res: any = await loginUser(payload).unwrap();
+
+      if (res?.success && res?.data?.token) {
+        toast.success("Login Successful!");
+        localStorage.setItem("token", res.data.token);
+        router.push("/feed"); // redirect after login
+      } else {
+        toast.error(res?.message || "Login failed!");
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Invalid credentials");
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signIn("google", { callbackUrl: "/feed" });
+    } catch (err) {
+      toast.error("Google login failed");
+    }
+  };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8 
-      h-[650px] flex flex-col justify-between">
+    <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8 h-[650px] flex flex-col justify-between">
 
-      {/* Top Section */}
+      {/* Top Logo & Title */}
       <div>
-        {/* Logo */}
         <div className="mb-7 flex justify-center">
-          {/* Logo */}
-            <Link href="/" className="shrink-0">
-              <Image src="/images/logo.png" alt="BuddyScript" width={160} height={40} className="h-8 w-auto" priority />
-            </Link>
+          <Link href="/">
+            <Image src="/images/logo.png" alt="BuddyScript" width={160} height={40} className="h-8 w-auto" priority />
+          </Link>
         </div>
 
-        {/* Header */}
         <div className="mb-10 text-center">
           <p className="text-sm text-muted-foreground mb-2">Welcome back</p>
           <h1 className="text-3xl text-gray-900">Login to your account</h1>
         </div>
 
-        {/* Google Button */}
+        {/* Google Login */}
         <Button
           type="button"
           variant="outline"
@@ -100,13 +125,17 @@ export function LoginForm() {
                 Remember me
               </label>
             </div>
-            <Link href="/forgot-password" className="text-sm text-primary">
+            <Link href="/forgotPassword" className="text-sm text-primary">
               Forgot password?
             </Link>
           </div>
 
-          <Button type="submit" className="w-full h-12 text-base font-medium">
-            Login now
+          <Button 
+            type="submit" 
+            className="w-full h-12 text-base font-medium"
+            disabled={isLoading}
+          >
+            {isLoading ? "Logging in..." : "Login now"}
           </Button>
         </form>
       </div>
@@ -122,5 +151,5 @@ export function LoginForm() {
       </div>
 
     </div>
-  )
+  );
 }

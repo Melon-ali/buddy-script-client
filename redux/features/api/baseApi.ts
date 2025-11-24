@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 export const baseApi = createApi({
     reducerPath: 'baseApi', // The key for this API in the Redux store
     baseQuery: fetchBaseQuery({
-        baseUrl: 'https://lukecarniege-memorial-app.vercel.app/api/v1', // Replace with your API's base URL
+        baseUrl: 'http://localhost:5006/api/v1', // Replace with your API's base URL
         prepareHeaders: (headers) => {
             const token = Cookies.get("token") // Assuming token is stored in the auth slice
             console.log('admin token',token);
@@ -17,7 +17,7 @@ export const baseApi = createApi({
         },
     }),
     endpoints: () => ({}),
-    tagTypes: ["approveEvent", "allEvents", "logIn", "transaction", "allUsers", "allCreators", "complains", "updateSubscription"]
+    tagTypes: ["approveEvent", "allPosts", "register", "logIn", "transaction", "allUsers", "allCreators", "complains", "updateSubscription", "posts", "comments" , "allComments"],
 });
 
 // Export hooks for usage in functional components

@@ -37,7 +37,7 @@ const NewPassword = () => {
     <form onSubmit={handleSubmit} className="mt-8 space-y-6">
       <div className="space-y-4 rounded-md">
         <div>
-          <label htmlFor="email" className="text-sm text-gray-500">
+          <label htmlFor="email" className="text-sm text-gray-900">
             Email
           </label>
           <input
@@ -47,12 +47,12 @@ const NewPassword = () => {
             value={email || ""}
             readOnly
             required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 bg-gray-100 text-gray-900 focus:outline-none focus:ring-green-500"
+            className="mt-1 block w-full rounded-md border border-gray-500 px-3 py-2 bg-white-600 text-gray-900 focus:outline-none focus:ring-gray-900"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="text-sm text-gray-500">
+          <label htmlFor="password" className="text-sm text-gray-900">
             Password
           </label>
           <div className="relative">
@@ -63,12 +63,12 @@ const NewPassword = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-green-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-gray-900"
             />
             <div className="absolute right-3 top-3">
               <button
                 type="button"
-                className="text-xl"
+                className="text-xl text-gray-900 hover:text-gray-700 focus:outline-none"
                 onClick={() => setShowPassword((prev) => !prev)}
               >
                 {showPassword ? <FaEyeSlash /> : <IoEyeSharp />}
@@ -81,7 +81,7 @@ const NewPassword = () => {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full rounded-md bg-green-600 py-2 text-white hover:bg-green-700 transition-colors"
+        className="w-full rounded-md bg-gray-900 py-2 text-white hover:bg-gray-900 transition-colors"
       >
         {isLoading ? "Saving..." : "Save"}
       </button>
