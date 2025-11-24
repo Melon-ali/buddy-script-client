@@ -34,14 +34,14 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {/* Global padding for fixed navbars */}
-          <div className="pt-[75px] pb-[65px] h-screen overflow-hidden">
+          <div className="">
             <ReduxProvider>
               <Toaster richColors position="top-center" />
               {children}
             </ReduxProvider>
           </div>
 
-          <ThemeToggle />
+          
         </ThemeProvider>
       </body>
     </html>
