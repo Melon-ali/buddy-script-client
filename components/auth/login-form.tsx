@@ -46,12 +46,19 @@ export function LoginForm() {
   };
 
   const handleGoogleLogin = async () => {
-    try {
-      await signIn("google", { callbackUrl: "/feed" });
-    } catch (err) {
-      toast.error("Google login failed");
+  try {
+    const result = await signIn("google", {
+      redirect: false,
+      callbackUrl: "/feed",
+    });
+
+    if (result?.url) {
+      router.push(result.url);
     }
-  };
+  } catch (err) {
+    toast.error("Google login failed");
+  }
+};
 
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8 h-[650px] flex flex-col justify-between">
