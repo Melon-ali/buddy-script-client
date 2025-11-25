@@ -132,7 +132,7 @@ export default function OtpVerification({ onVerify }: OtpVerificationProps) {
               onChange={(e) => handleChange(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               onPaste={handlePaste}
-              className="w-12 h-12 text-center text-xl border border-white-900 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
+              className="w-12 h-12 text-center text-xl border border-gray-900 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
             />
           ))}
         </div>

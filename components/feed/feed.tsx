@@ -1,6 +1,6 @@
 import { Stories } from "@/components/feed/stories"
 import { CreatePost } from "@/components/feed/create-post"
-import { PostCard } from "@/components/feed/post-card"
+import { PostCard } from "./post-card"
 
 const posts = [
   {

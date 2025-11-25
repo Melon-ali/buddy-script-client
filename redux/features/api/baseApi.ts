@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 export const baseApi = createApi({
     reducerPath: 'baseApi', // The key for this API in the Redux store
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:5006/api/v1', // Replace with your API's base URL
+        baseUrl: "https://buddy-script-backend-ebon.vercel.app/api/v1", // Replace with your API's base URL
         prepareHeaders: (headers) => {
             const token = Cookies.get("token") // Assuming token is stored in the auth slice
             console.log('admin token',token);

@@ -1,9 +1,17 @@
-// auth.ts (বা যেখানে আপনার NextAuth কনফিগারেশন আছে)
-
+// app/api/auth/[...nextauth]/route.ts
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import clientPromise from "./lib/mongoClientPromise"; // আপনার mongoClientPromise
+import clientPromise from "@/lib/mongoClientPromise"; // MongoDB client
+import type { DefaultSession } from "next-auth";
+
+declare module "next-auth" {
+  interface Session {
+    user: DefaultSession["user"] & {
+      id: string;
+    };
+  }
+}
 
 const clientId = process.env.GOOGLE_CLIENT_ID;
 const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -15,7 +23,6 @@ if (!clientId || !clientSecret) {
 }
 
 const handler = NextAuth({
-  // 💡 সমাধান: databaseName প্যারামিটারটি সরিয়ে ফেলুন
   adapter: MongoDBAdapter(clientPromise),
 
   providers: [
@@ -24,6 +31,29 @@ const handler = NextAuth({
       clientSecret,
     }),
   ],
+
+  callbacks: {
+    // 🔹 Remove Prisma creation; only handle session & JWT
+    async session({ session }) {
+      // Optionally, you can keep user id if needed from MongoDB user
+      return session;
+    },
+
+    async jwt({ token, user }) {
+      if (user?.id) token.id = user.id;
+      return token;
+    },
+  },
+
+  session: {
+    strategy: "jwt",
+  },
+
+  pages: {
+    signIn: "/login",
+  },
+
+  debug: process.env.NODE_ENV === "development",
 });
 
 export { handler as GET, handler as POST };
