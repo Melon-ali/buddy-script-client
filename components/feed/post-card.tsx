@@ -39,7 +39,7 @@ export function PostCard({ post }: any) {
   const [deletePost, { isLoading: deleting }] = useDeletePostMutation();
   const [updatePost, { isLoading: updating }] = useUpdatePostMutation();
   const [createLike] = useUserLikesMutation();
-  const { data: allLikesData } = useAllLikesQuery('');
+  const { data: allLikesData } = useAllLikesQuery("");
   const likesArray = allLikesData?.data || allLikesData || [];
 
   const { data: commentsData, refetch: refetchComments } =
@@ -109,7 +109,7 @@ export function PostCard({ post }: any) {
   };
 
   return (
-    <Card className="bg-[#112032] text-white">
+    <Card className="bg-white dark:bg-[#112032] text-black dark:text-white border border-border">
       <CardHeader className="flex flex-row items-center gap-3 p-4 pb-2">
         <Avatar>
           <AvatarImage src={userImage} />
@@ -118,7 +118,7 @@ export function PostCard({ post }: any) {
 
         <div className="flex-1">
           <h3 className="font-semibold text-sm">{username}</h3>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground dark:text-gray-400">
             {new Date(post.createdAt).toLocaleString()} • Public
           </p>
         </div>
@@ -146,7 +146,8 @@ export function PostCard({ post }: any) {
         {isEditing ? (
           <div className="flex flex-col gap-2">
             <textarea
-              className="form-control w-full bg-muted border border-border rounded-xl px-3 py-2 resize-none text-black"
+              className="form-control w-full border border-border rounded-xl px-3 py-2 resize-none
+                         bg-gray-100 dark:bg-gray-800 text-black dark:text-white"
               value={editedContent}
               onChange={(e) => setEditedContent(e.target.value)}
             />
@@ -171,7 +172,7 @@ export function PostCard({ post }: any) {
         )}
 
         {post.imageUrl && (
-          <div className="relative w-full aspect-video bg-muted mt-3">
+          <div className="relative w-full aspect-video bg-gray-100 dark:bg-gray-800 mt-3 rounded-xl">
             <Image
               src={post.imageUrl}
               alt="Post image"
@@ -181,7 +182,7 @@ export function PostCard({ post }: any) {
           </div>
         )}
 
-        <div className="px-0 py-3 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="px-0 py-3 flex items-center justify-between text-xs text-muted-foreground dark:text-gray-400">
           <div className="flex items-center gap-1">
             <Heart className="h-4 w-4 mr-1" />{" "}
             {post.likeCount + (liked ? 1 : 0)}
@@ -194,24 +195,24 @@ export function PostCard({ post }: any) {
           </div>
         </div>
 
-        <Separator />
+        <Separator className="border-gray-300 dark:border-gray-700" />
 
         <div className="flex items-center justify-between p-2">
           <Button
             variant="ghost"
             className={`flex-1 gap-2 ${
-              liked ? "text-red-500 hover:text-red-600" : "text-muted-foreground"
+              liked ? "text-red-500 hover:text-red-600" : "text-muted-foreground dark:text-gray-300"
             }`}
             onClick={handleLike}
           >
             <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
             <span className="text-xs font-medium">Like</span>
           </Button>
-          <Button variant="ghost" className="flex-1 gap-2 text-muted-foreground">
+          <Button variant="ghost" className="flex-1 gap-2 text-muted-foreground dark:text-gray-300">
             <MessageCircle className="h-4 w-4" />
             <span className="text-xs font-medium">Comment</span>
           </Button>
-          <Button variant="ghost" className="flex-1 gap-2 text-muted-foreground">
+          <Button variant="ghost" className="flex-1 gap-2 text-muted-foreground dark:text-gray-300">
             <Share2 className="h-4 w-4" />
             <span className="text-xs font-medium">Share</span>
           </Button>
@@ -222,17 +223,19 @@ export function PostCard({ post }: any) {
           {commentsData?.map((comment: any) => (
             <div
               key={comment.id}
-              className="flex items-start gap-2 text-sm bg-gray-800 p-2 rounded"
+              className="flex items-start gap-2 text-sm bg-gray-100 dark:bg-gray-800 p-2 rounded"
             >
               <Avatar className="h-6 w-6">
                 <AvatarImage src={comment.author?.image || "/placeholder.svg"} />
-                <AvatarFallback>{comment.author?.username?.charAt(0) || "U"}</AvatarFallback>
+                <AvatarFallback>
+                  {comment.author?.username?.charAt(0) || "U"}
+                </AvatarFallback>
               </Avatar>
               <div>
                 <p>
                   <strong>{comment.author?.username || "Unknown"}:</strong> {comment.content}
                 </p>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-muted-foreground dark:text-gray-400">
                   {new Date(comment.createdAt).toLocaleString()}
                 </span>
               </div>
@@ -245,7 +248,7 @@ export function PostCard({ post }: any) {
               placeholder="Write a comment..."
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              className="flex-1"
+              className="flex-1 bg-gray-100 dark:bg-gray-700 text-black dark:text-white border border-border dark:border-gray-600"
             />
             <Button size="icon" onClick={handleAddComment}>
               <Send className="h-4 w-4" />
