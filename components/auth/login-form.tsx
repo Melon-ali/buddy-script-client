@@ -12,13 +12,21 @@ import { useLoginUserMutation } from "@/redux/features/auth/userApi";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
 
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    token: string;
+    role: string;
+  };
+}
+
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
 
-  // RTK Query mutation
   const [loginUser, { isLoading }] = useLoginUserMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,14 +39,18 @@ export function LoginForm() {
 
     try {
       const payload = { email, password };
-      const res: any = await loginUser(payload).unwrap();
+      const res: LoginResponse = await loginUser(payload).unwrap();
 
-      if (res?.success && res?.data?.token) {
+      if (res.success && res.data?.token) {
         toast.success("Login Successful!");
-        localStorage.setItem("token", res.data.token);
-        router.push("/feed"); // redirect after login
+        if (rememberMe) {
+          localStorage.setItem("token", res.data.token);
+        } else {
+          sessionStorage.setItem("token", res.data.token);
+        }
+        router.push("/feed");
       } else {
-        toast.error(res?.message || "Login failed!");
+        toast.error(res.message || "Login failed!");
       }
     } catch (error: any) {
       toast.error(error?.data?.message || "Invalid credentials");
@@ -46,31 +58,36 @@ export function LoginForm() {
   };
 
   const handleGoogleLogin = async () => {
-  try {
-    const result = await signIn("google", {
-      redirect: false,
-      callbackUrl: "/feed",
-    });
+    try {
+      const result = await signIn("google", {
+        redirect: false,
+        callbackUrl: "/feed",
+      });
 
-    if (result?.url) {
-      router.push(result.url);
+      if (result?.url) router.push(result.url);
+    } catch {
+      toast.error("Google login failed");
     }
-  } catch (err) {
-    toast.error("Google login failed");
-  }
-};
+  };
 
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8 h-[650px] flex flex-col justify-between">
-
-      {/* Top Logo & Title */}
       <div>
+        {/* Logo */}
         <div className="mb-7 flex justify-center">
           <Link href="/">
-            <Image src="/images/logo.png" alt="BuddyScript" width={160} height={40} className="h-8 w-auto" priority />
+            <Image
+              src="/images/logo.png"
+              alt="BuddyScript"
+              width={160}
+              height={40}
+              className="h-8 w-auto"
+              priority
+            />
           </Link>
         </div>
 
+        {/* Title */}
         <div className="mb-10 text-center">
           <p className="text-sm text-muted-foreground mb-2">Welcome back</p>
           <h1 className="text-3xl text-gray-900">Login to your account</h1>
@@ -83,7 +100,13 @@ export function LoginForm() {
           className="w-full mb-8 h-12 text-base bg-transparent"
           onClick={handleGoogleLogin}
         >
-          <Image src="/images/google.svg" alt="Google" width={20} height={20} className="inline-block mr-2" />
+          <Image
+            src="/images/google.svg"
+            alt="Google"
+            width={20}
+            height={20}
+            className="inline-block mr-2"
+          />
           Or sign-in with Google
         </Button>
 
@@ -97,7 +120,7 @@ export function LoginForm() {
           </div>
         </div>
 
-        {/* Login Form */}
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Email</Label>
@@ -137,17 +160,13 @@ export function LoginForm() {
             </Link>
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full h-12 text-base font-medium"
-            disabled={isLoading}
-          >
+          <Button type="submit" className="w-full h-12 text-base font-medium" disabled={isLoading}>
             {isLoading ? "Logging in..." : "Login now"}
           </Button>
         </form>
       </div>
 
-      {/* Bottom - Sign Up */}
+      {/* Sign Up */}
       <div className="text-center mt-4">
         <p className="text-sm text-gray-600">
           Don't have an account?{" "}
@@ -156,7 +175,6 @@ export function LoginForm() {
           </Link>
         </p>
       </div>
-
     </div>
   );
 }

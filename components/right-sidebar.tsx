@@ -8,27 +8,27 @@ const friendRequests = [
     id: 1,
     name: "Anthony Daugloi",
     mutualFriends: 12,
-    image: "/placeholder.svg?key=req1",
+    image: "/friend-req.png",
   },
   {
     id: 2,
     name: "Hingu Zku",
     mutualFriends: 12,
-    image: "/placeholder.svg?key=req2",
+    image: "/friends_img.png",
   },
 ]
 
 const contacts = [
-  { name: "Adom Smith", status: "online", image: "/placeholder.svg?key=c1" },
-  { name: "Villiam Rober", status: "offline", time: "10 min", image: "/placeholder.svg?key=c2" },
-  { name: "Jone Doe", status: "online", image: "/placeholder.svg?key=c3" },
-  { name: "Hingu Zku", status: "offline", time: "30 min", image: "/placeholder.svg?key=c4" },
-  { name: "David Milar", status: "offline", time: "1 hour", image: "/placeholder.svg?key=c5" },
-  { name: "Amik Huj", status: "online", image: "/placeholder.svg?key=c6" },
-  { name: "Zim Szu", status: "offline", time: "2 days", image: "/placeholder.svg?key=c7" },
-  { name: "Jone Doe", status: "online", image: "/placeholder.svg?key=c8" },
-  { name: "Villiam Rober", status: "offline", time: "10 min", image: "/placeholder.svg?key=c9" },
-  { name: "Adom Smith", status: "online", image: "/placeholder.svg?key=c10" },
+  { name: "Adom Smith", status: "online", image: "/people1.png" },
+  { name: "Villiam Rober", status: "offline", time: "10 min", image: "/people2.png" },
+  { name: "Jone Doe", status: "online", image: "/img1.png" },
+  { name: "Hingu Zku", status: "offline", time: "30 min", image: "/people3.png" },
+  { name: "David Milar", status: "offline", time: "1 hour", image: "/photos4.png" },
+  { name: "Amik Huj", status: "online", image: "/photos5.png" },
+  { name: "Zim Szu", status: "offline", time: "2 days", image: "/img3.png" },
+  { name: "Jone Doe", status: "online", image: "/photos7.png" },
+  { name: "Villiam Rober", status: "offline", time: "10 min", image: "/photos8.png" },
+  { name: "Adom Smith", status: "online", image: "/img2.png" },
 ]
 
 export function RightSidebar() {
@@ -48,7 +48,7 @@ export function RightSidebar() {
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-10 w-10 rounded-full bg-muted overflow-hidden shrink-0">
                     <Image
-                      src={request.image || "/placeholder.svg"}
+                      src={request.image || "/friend-req.png"}
                       alt={request.name}
                       width={40}
                       height={40}

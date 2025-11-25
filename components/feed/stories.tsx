@@ -8,25 +8,25 @@ const stories = [
     id: "create",
     type: "create",
     user: "Your Story",
-    image: "/placeholder.svg?key=story-me",
+    image: "/card_ppl1.png",
   },
   {
     id: 1,
     user: "Ryan Roslansky",
-    image: "/placeholder.svg?key=story1",
-    avatar: "/placeholder.svg?key=av1",
+    image: "/card_ppl2.png",
+    avatar: "/people1.png",
   },
   {
     id: 2,
     user: "Jone Doe",
-    image: "/placeholder.svg?key=story2",
-    avatar: "/placeholder.svg?key=av2",
+    image: "/card_ppl3.png",
+    avatar: "/people2.png",
   },
   {
     id: 3,
     user: "Emily Smith",
-    image: "/placeholder.svg?key=story3",
-    avatar: "/placeholder.svg?key=av3",
+    image: "/card_ppl4.png",
+    avatar: "/people3.png",
   },
 ]
 

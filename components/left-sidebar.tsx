@@ -18,17 +18,17 @@ const suggestedPeople = [
   {
     name: "Steve Jobs",
     role: "CEO of Apple",
-    image: "/placeholder.svg?key=ls6z6",
+    image: "/chat1_img.png",
   },
   {
     name: "Ryan Roslansky",
     role: "CEO of Linkedin",
-    image: "/placeholder.svg?key=za3jt",
+    image: "/chat_profile.png",
   },
   {
     name: "Dylan Field",
     role: "CEO of Figma",
-    image: "/placeholder.svg?key=qlmow",
+    image: "/chat_profile1.png",
   },
 ]
 
@@ -38,14 +38,14 @@ const events = [
     title: "No more terrorism no more cry",
     date: { day: "10", month: "Jul" },
     attendees: 17,
-    image: "/placeholder.svg?key=event1",
+    image: "/recommend1.png",
   },
   {
     id: 2,
     title: "No more terrorism no more cry",
     date: { day: "10", month: "Jul" },
     attendees: 17,
-    image: "/placeholder.svg?key=event2",
+    image: "/recommend2.png",
   },
 ]
 
@@ -84,7 +84,7 @@ export function LeftSidebar() {
         <div className="space-y-4">
           {suggestedPeople.map((person) => (
             <div key={person.name} className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-muted overflow-hidden flex-shrink-0">
+              <div className="h-10 w-10 rounded-full bg-muted overflow-hidden shrink-0">
                 <Image
                   src={person.image || "/placeholder.svg"}
                   alt={person.name}

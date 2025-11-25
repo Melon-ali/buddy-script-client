@@ -1,15 +1,14 @@
 import baseApi from "../api/baseApi";
 
 const commentsApi = baseApi.injectEndpoints({
+  overrideExisting: true, // ✅ add this
   endpoints: (build) => ({
     userComments: build.mutation({
-      query: (data: any) => {
-        return {
-          url: "/comments",
-          method: "POST",
-          body: data,
-        };
-      },
+      query: (data: any) => ({
+        url: "/comments",
+        method: "POST",
+        body: data,
+      }),
       invalidatesTags: ["comments"],
     }),
 
@@ -28,7 +27,6 @@ const commentsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["allComments"],
     }),
-
   }),
 });
 
