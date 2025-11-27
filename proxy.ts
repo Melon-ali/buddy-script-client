@@ -1,56 +1,60 @@
-// proxy.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtDecode } from "jwt-decode";
 
 export default function proxy(request: NextRequest) {
   const currentPath = request.nextUrl.pathname;
-  const feedUrl = request.nextUrl.origin + "/feed"; // redirect if not logged in
 
-  // Always allow NextAuth flows (callback, sign-in, sign-out)
-  if (currentPath.startsWith("/api/auth")) {
+  // If user is not logged in → redirect here
+  const loginUrl = request.nextUrl.origin + "/login";
+
+  // Allow public routes
+  const publicRoutes = ["/login", "/register", "/forgot-password"];
+
+  if (publicRoutes.includes(currentPath)) {
     return NextResponse.next();
   }
 
-  // Allow _next/static, images, favicon, etc.
+  // Allow framework static files and NextAuth routes
   if (
     currentPath.startsWith("/_next") ||
     currentPath.startsWith("/static") ||
     currentPath.startsWith("/images") ||
-    currentPath.startsWith("/favicon")
+    currentPath.startsWith("/favicon") ||
+    currentPath.startsWith("/api/auth")
   ) {
     return NextResponse.next();
   }
 
-  // Try to read either NextAuth cookies or custom token
+  // Read token from cookies
   const token =
-    request.cookies.get("token")?.value || // custom token
-    request.cookies.get("next-auth.session-token")?.value || // dev
-    request.cookies.get("__Secure-next-auth.session-token")?.value; // prod secure cookie
+    request.cookies.get("token")?.value ||
+    request.cookies.get("next-auth.session-token")?.value ||
+    request.cookies.get("__Secure-next-auth.session-token")?.value;
 
-  // If no token, redirect to feed/login
+  // No token → redirect to login
   if (!token) {
-    return NextResponse.redirect(feedUrl);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Optional: validate JWT if using custom token
+  // Validate JWT if custom token exists
   if (request.cookies.get("token")?.value) {
     try {
       jwtDecode(token);
     } catch (err) {
-      return NextResponse.redirect(feedUrl);
+      return NextResponse.redirect(loginUrl);
     }
   }
 
+  // Allow request to continue
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
     "/feed",
-    "/posts",
-    "/comments",
-    "/likes",
-    "/api/auth/:path*", // ALLOW all next-auth routes
+    "/posts/:path*",
+    "/comments/:path*",
+    "/likes/:path*",
   ],
 };

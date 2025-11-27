@@ -35,13 +35,11 @@ export default function RootLayout({
         >
           {/* Global padding for fixed navbars */}
           <div className="">
-            <ReduxProvider>
-              <Toaster richColors position="top-center" />
-              {children}
-            </ReduxProvider>
+              <ReduxProvider>
+                <Toaster richColors position="top-center" />
+                {children}
+              </ReduxProvider>
           </div>
-
-          
         </ThemeProvider>
       </body>
     </html>

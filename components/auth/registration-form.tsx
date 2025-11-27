@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useUserRegisterMutation } from "@/redux/features/auth/userApi";
 
@@ -50,11 +49,8 @@ export function RegistrationForm() {
   };
 
   const handleGoogleRegistration = async () => {
-    try {
-      await signIn("google", { callbackUrl: "/feed" });
-    } catch (err) {
-      toast.error("Google registration failed");
-    }
+    // Backend Passport Google login
+    window.location.href = "https://buddy-script-backend-ebon.vercel.app/api/v1/auth/google";
   };
 
   return (

@@ -2,8 +2,8 @@
 
 import { Stories } from "@/components/feed/stories";
 import { CreatePost } from "@/components/feed/create-post";
-import { PostCard } from "./post-card";
 import { useAllPostsQuery } from "@/redux/features/posts/postsApi";
+import { PostCard } from "./post-card";
 
 export function Feed() {
   const { data, isLoading } = useAllPostsQuery(undefined);

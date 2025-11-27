@@ -133,7 +133,7 @@ export function Navbar() {
               <div className="flex items-center gap-3 p-2 border-b">
                 <div className="h-10 w-10 rounded-full overflow-hidden bg-muted">
                   <Image
-                    src={user?.profilePhoto || "/images/default-avatar.png"}
+                    src={user?.profilePhoto || "/images/Avater.png"}
                     alt="Profile"
                     width={40}
                     height={40}

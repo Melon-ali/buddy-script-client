@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLoginUserMutation } from "@/redux/features/auth/userApi";
 import { toast } from "sonner";
-import { signIn } from "next-auth/react";
 
 interface LoginResponse {
   success: boolean;
@@ -31,24 +30,28 @@ export function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!email || !password) {
       toast.error("Email and password are required");
       return;
     }
 
     try {
-      const payload = { email, password };
-      const res: LoginResponse = await loginUser(payload).unwrap();
+      const res: LoginResponse = await loginUser({ email, password }).unwrap();
 
       if (res.success && res.data?.token) {
         toast.success("Login Successful!");
+
+        // Save token in cookie
+        document.cookie = `token=${res.data.token}; path=/; max-age=86400; SameSite=Lax`;
+
+        // Remember me
         if (rememberMe) {
           localStorage.setItem("token", res.data.token);
         } else {
           sessionStorage.setItem("token", res.data.token);
         }
-        router.push("/feed");
+
+        router.replace("/feed");
       } else {
         toast.error(res.message || "Login failed!");
       }
@@ -57,17 +60,10 @@ export function LoginForm() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      const result = await signIn("google", {
-        redirect: false,
-        callbackUrl: "/feed",
-      });
-
-      if (result?.url) router.push(result.url);
-    } catch {
-      toast.error("Google login failed");
-    }
+  // 🔥 Google Login
+  const handleGoogleLogin = () => {
+    window.location.href =
+      "https://buddy-script-backend-ebon.vercel.app/api/v1/auth/google";
   };
 
   return (
@@ -107,7 +103,7 @@ export function LoginForm() {
             height={20}
             className="inline-block mr-2"
           />
-          Or sign-in with Google
+          Sign-in with Google
         </Button>
 
         {/* Divider */}
@@ -120,7 +116,7 @@ export function LoginForm() {
           </div>
         </div>
 
-        {/* Form */}
+        {/* Email + Password Login */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Email</Label>
@@ -147,20 +143,23 @@ export function LoginForm() {
           <div className="flex items-center justify-between pt-2">
             <div className="flex items-center space-x-2">
               <Checkbox
-                id="remember"
                 checked={rememberMe}
                 onCheckedChange={(checked) => setRememberMe(checked as boolean)}
               />
-              <label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
+              <span className="text-sm text-gray-600 cursor-pointer">
                 Remember me
-              </label>
+              </span>
             </div>
             <Link href="/forgotPassword" className="text-sm text-primary">
               Forgot password?
             </Link>
           </div>
 
-          <Button type="submit" className="w-full h-12 text-base font-medium" disabled={isLoading}>
+          <Button
+            type="submit"
+            className="w-full h-12 text-base font-medium"
+            disabled={isLoading}
+          >
             {isLoading ? "Logging in..." : "Login now"}
           </Button>
         </form>
