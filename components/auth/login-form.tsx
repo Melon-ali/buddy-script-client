@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,12 +24,40 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [loginUser, { isLoading }] = useLoginUserMutation();
 
+  // ============================================
+  // GOOGLE LOGIN CALLBACK HANDLER
+  // ============================================
+  useEffect(() => {
+    const token = searchParams.get("accessToken");
+    const email = searchParams.get("email");
+    const username = searchParams.get("username");
+    const id = searchParams.get("id");
+
+    if (token) {
+      // Save token
+      document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
+      localStorage.setItem("token", token);
+      if (email) localStorage.setItem("userEmail", email);
+      if (username) localStorage.setItem("username", username);
+      if (id) localStorage.setItem("userId", id);
+
+      toast.success("Google Login Successful!");
+      router.replace("/feed");
+    }
+  }, [searchParams, router]);
+
+  // ============================================
+  // NORMAL LOGIN HANDLER
+  // ============================================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!email || !password) {
       toast.error("Email and password are required");
       return;
@@ -60,11 +88,15 @@ export function LoginForm() {
     }
   };
 
-  // 🔥 Google Login
+  // ============================================
+  // GOOGLE LOGIN BUTTON ACTION
+  // ============================================
   const handleGoogleLogin = () => {
     window.location.href =
       "https://buddy-script-backend-ebon.vercel.app/api/v1/auth/google";
   };
+
+  // ============================================
 
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8 h-[650px] flex flex-col justify-between">

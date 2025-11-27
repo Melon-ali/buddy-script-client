@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useUserRegisterMutation } from "@/redux/features/auth/userApi";
 
 export function RegistrationForm() {
@@ -18,8 +18,37 @@ export function RegistrationForm() {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
 
   const router = useRouter();
-  const [userRegister, { isLoading }] = useUserRegisterMutation(); // Redux API hook
+  const searchParams = useSearchParams();
 
+  const [userRegister, { isLoading }] = useUserRegisterMutation();
+
+  // ============================================================
+  //  GOOGLE CALLBACK HANDLER (token + user info save)
+  // ============================================================
+  useEffect(() => {
+    const token = searchParams.get("accessToken");
+    const email = searchParams.get("email");
+    const username = searchParams.get("username");
+    const id = searchParams.get("id");
+
+    if (token) {
+      // Save token in cookie & storage
+      document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
+      localStorage.setItem("token", token);
+
+      if (email) localStorage.setItem("userEmail", email);
+      if (username) localStorage.setItem("username", username);
+      if (id) localStorage.setItem("userId", id);
+
+      toast.success("Google Registration Successful!");
+
+      router.replace("/feed");
+    }
+  }, [searchParams, router]);
+
+  // ============================================================
+  // NORMAL REGISTRATION (email + password)
+  // ============================================================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -29,17 +58,17 @@ export function RegistrationForm() {
     }
 
     if (!agreeToTerms) {
-      toast.error("Please agree to terms and conditions");
+      toast.error("Please agree to the terms & conditions");
       return;
     }
 
     try {
       const payload = { email, password };
-      const res: any = await userRegister(payload).unwrap(); // Redux API call
+      const res: any = await userRegister(payload).unwrap();
 
       if (res?.success) {
         toast.success("Registration successful!");
-        router.push("/login"); // redirect to login after registration
+        router.push("/login");
       } else {
         toast.error(res?.message || "Registration failed!");
       }
@@ -48,9 +77,12 @@ export function RegistrationForm() {
     }
   };
 
-  const handleGoogleRegistration = async () => {
-    // Backend Passport Google login
-    window.location.href = "https://buddy-script-backend-ebon.vercel.app/api/v1/auth/google";
+  // ============================================================
+  //  GOOGLE REGISTRATION
+  // ============================================================
+  const handleGoogleRegistration = () => {
+    window.location.href =
+      "https://buddy-script-backend-ebon.vercel.app/api/v1/auth/google";
   };
 
   return (
@@ -105,11 +137,8 @@ export function RegistrationForm() {
       {/* Registration Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-            Email
-          </Label>
+          <Label>Email</Label>
           <Input
-            id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -119,11 +148,8 @@ export function RegistrationForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-            Password
-          </Label>
+          <Label>Password</Label>
           <Input
-            id="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -133,11 +159,8 @@ export function RegistrationForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="repeatPassword" className="text-sm font-medium text-gray-700">
-            Repeat Password
-          </Label>
+          <Label>Repeat Password</Label>
           <Input
-            id="repeatPassword"
             type="password"
             value={repeatPassword}
             onChange={(e) => setRepeatPassword(e.target.value)}
@@ -146,7 +169,7 @@ export function RegistrationForm() {
           />
         </div>
 
-        {/* Terms & Conditions */}
+        {/* Terms */}
         <div className="flex items-start space-x-2 pt-2">
           <Checkbox
             id="terms"
@@ -154,14 +177,18 @@ export function RegistrationForm() {
             onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
             className="mt-1"
           />
-          <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer leading-relaxed">
-            I agree to terms & conditions
+          <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
+            I agree to the terms & conditions
           </label>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <div className="pt-6">
-          <Button type="submit" className="w-full h-12 text-base font-medium" disabled={isLoading}>
+          <Button
+            type="submit"
+            className="w-full h-12 text-base font-medium"
+            disabled={isLoading}
+          >
             {isLoading ? "Registering..." : "Register now"}
           </Button>
         </div>
@@ -171,7 +198,7 @@ export function RegistrationForm() {
       <div className="mt-10 text-center">
         <p className="text-sm text-gray-600">
           Already have an account?{" "}
-          <Link href="/login" className="text-primary font-medium hover:underline">
+          <Link href="/login" className="text-primary font-medium">
             Login
           </Link>
         </p>
