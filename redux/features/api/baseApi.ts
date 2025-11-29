@@ -20,7 +20,7 @@ export const baseApi = createApi({
         },
     }),
     endpoints: () => ({}),
-    tagTypes: ["approveEvent", "allPosts", "register", "UserById", "logIn", "transaction", "allUsers", "allCreators", "complains", "updateSubscription", "posts", "comments" , "allComments" , "likes"],
+    tagTypes: ["approveEvent", "allPosts", "register", "UserById", "logIn", "transaction", "allUsers", "allCreators", "complains", "updateSubscription", "posts", "Comments" , "allComments" , "likes"],
 });
 
 // Export hooks for usage in functional components

@@ -17,7 +17,7 @@ const likesApi = baseApi.injectEndpoints({
         url: `/likes`,
         method: "GET",
       }),
-      providesTags: ["allComments"],
+      providesTags: ["likes"],
     }),
   }),
 });

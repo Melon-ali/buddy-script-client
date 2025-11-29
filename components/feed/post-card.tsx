@@ -19,9 +19,15 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 // API
-import { useDeletePostMutation, useUpdatePostMutation } from "@/redux/features/posts/postsApi";
+import {
+  useDeletePostMutation,
+  useUpdatePostMutation,
+} from "@/redux/features/posts/postsApi";
 import { useUserLikesMutation, useAllLikesQuery } from "@/redux/features/likes/likesApi";
-import { useGetCommentsByPostIdQuery, useUserCommentsMutation } from "@/redux/features/comments/commentsApi";
+import {
+  useUserCommentsMutation,
+  useDeleteCommentMutation,
+} from "@/redux/features/comments/commentsApi";
 
 export function PostCard({ post }: any) {
   const token = Cookies.get("token");
@@ -33,15 +39,16 @@ export function PostCard({ post }: any) {
   const [editedContent, setEditedContent] = useState(post.content);
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState(post.comments || []);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyContent, setReplyContent] = useState("");
 
   const [deletePost] = useDeletePostMutation();
   const [updatePost] = useUpdatePostMutation();
-
   const [createLike] = useUserLikesMutation();
+  const [createComment] = useUserCommentsMutation();
+  const [deleteComment] = useDeleteCommentMutation();
   const { data: allLikesData } = useAllLikesQuery("");
   const likesArray = allLikesData?.data || allLikesData || [];
-
-  const [createComment] = useUserCommentsMutation();
 
   const author = post.author || {};
   const username = author.username || "Unknown User";
@@ -52,11 +59,12 @@ export function PostCard({ post }: any) {
     if (likesArray?.length && currentUser?.email) {
       const likedAlready = likesArray.find(
         (like: any) =>
-          like.postId === post.id &&
-          like.user?.email === currentUser.email
+          like.postId === post.id && like.user?.email === currentUser.email
       );
       setLiked(!!likedAlready);
-      setLikeCount(likesArray.filter((like: any) => like.postId === post.id).length);
+      setLikeCount(
+        likesArray.filter((like: any) => like.postId === post.id).length
+      );
     }
   }, [likesArray, post.id, currentUser]);
 
@@ -96,15 +104,10 @@ export function PostCard({ post }: any) {
       return;
     }
     try {
-      // Optimistic UI
       setLiked(!liked);
       setLikeCount((prev: number) => (liked ? prev - 1 : prev + 1));
-
       const res: any = await createLike({ postId: post.id }).unwrap();
-
-      // API response data check
       setLiked(res?.data?.isLiked ?? liked);
-
     } catch (error) {
       setLiked(liked);
       setLikeCount((prev: number) => (liked ? prev + 1 : prev - 1));
@@ -125,24 +128,118 @@ export function PostCard({ post }: any) {
       content: newComment,
       author: currentUser,
       createdAt: new Date().toISOString(),
+      replies: [],
     };
 
     try {
       setComments([tempComment, ...comments]);
       setNewComment("");
 
-      const res: any = await createComment({ postId: post.id, content: tempComment.content }).unwrap();
+      const res: any = await createComment({
+        postId: post.id,
+        authorId: currentUser?.id || currentUser?._id,
+        content: tempComment.content,
+      }).unwrap();
 
       if (res?.data) {
         setComments((prev: any[]) =>
-          prev.map((c: { id: string; }) =>
-            c.id === tempComment.id ? { ...res.data, author: currentUser } : c
+          prev.map((c: any) => (c.id === tempComment.id ? res.data : c))
+        );
+      }
+    } catch (err) {
+      setComments((prev: any[]) => prev.filter((c: any) => c.id !== tempComment.id));
+      toast.error("Failed to add comment");
+    }
+  };
+
+  // -------- ADD REPLY --------
+  const handleAddReply = async (parentId: string) => {
+    if (!currentUser || !token) {
+      toast.error("You must login to reply.");
+      return;
+    }
+    if (!replyContent.trim()) return;
+
+    const tempReply = {
+      id: `temp-${Date.now()}`,
+      content: replyContent,
+      author: currentUser,
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      setComments((prev: any) =>
+        prev.map((c: any) =>
+          c.id === parentId
+            ? { ...c, replies: [tempReply, ...(c.replies || [])] }
+            : c
+        )
+      );
+      setReplyContent("");
+      setReplyingTo(null);
+
+      const res: any = await createComment({
+        postId: post.id,
+        parentId,
+        authorId: currentUser?.id || currentUser?._id,
+        content: tempReply.content,
+      }).unwrap();
+
+      if (res?.data) {
+        setComments((prev: any) =>
+          prev.map((c: any) =>
+            c.id === parentId
+              ? {
+                  ...c,
+                  replies: c.replies?.map((r: any) =>
+                    r.id === tempReply.id ? res.data : r
+                  ),
+                }
+              : c
           )
         );
       }
-    } catch (error) {
-      setComments((prev: any[]) => prev.filter((c: { id: string; }) => c.id !== tempComment.id));
-      toast.error("Failed to add comment");
+    } catch (err) {
+      setComments((prev: any) =>
+        prev.map((c: any) => ({
+          ...c,
+          replies: c.replies?.filter((r: any) => r.id !== tempReply.id),
+        }))
+      );
+      toast.error("Failed to add reply");
+    }
+  };
+
+  // -------- DELETE COMMENT / REPLY --------
+  const handleDeleteComment = async (commentId: string) => {
+    if (!currentUser) {
+      toast.error("You must login to delete a comment.");
+      return;
+    }
+
+    const isOwnComment = comments.some(
+      (c: any) =>
+        (c.id === commentId && (c.author?.id === currentUser?.id || c.author?._id === currentUser?.id)) ||
+        c.replies?.some((r: any) => r.id === commentId && (r.author?.id === currentUser?.id || r.author?._id === currentUser?.id))
+    );
+
+    if (!isOwnComment) {
+      toast.error("You can delete only your own comment or reply.");
+      return;
+    }
+
+    try {
+      // Remove from state
+      setComments((prev: any[]) =>
+        prev.map((c: any) => ({
+          ...c,
+          replies: c.replies?.filter((r: any) => r.id !== commentId),
+        })).filter((c: any) => c.id !== commentId)
+      );
+      await deleteComment(commentId).unwrap();
+      toast.success("Deleted successfully");
+    } catch (err) {
+      toast.error("Failed to delete comment/reply");
     }
   };
 
@@ -155,7 +252,9 @@ export function PostCard({ post }: any) {
         </Avatar>
         <div className="flex-1">
           <h3 className="font-semibold text-sm">{username}</h3>
-          <p className="text-xs text-muted-foreground dark:text-gray-400">{new Date(post.createdAt).toLocaleString()}</p>
+          <p className="text-xs text-muted-foreground dark:text-gray-400">
+            {new Date(post.createdAt).toLocaleString()}
+          </p>
         </div>
         {currentUser?.email === author?.email && (
           <div className="flex gap-2">
@@ -178,7 +277,9 @@ export function PostCard({ post }: any) {
               onChange={(e) => setEditedContent(e.target.value)}
             />
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setIsEditing(false)}>
+                Cancel
+              </Button>
               <Button onClick={handleSaveEdit}>Save</Button>
             </div>
           </div>
@@ -188,7 +289,12 @@ export function PostCard({ post }: any) {
 
         {post.imageUrl && (
           <div className="relative w-full aspect-video mt-3">
-            <Image src={post.imageUrl} alt="Post image" fill className="object-cover rounded-xl" />
+            <Image
+              src={post.imageUrl}
+              alt="Post image"
+              fill
+              className="object-cover rounded-xl"
+            />
           </div>
         )}
 
@@ -210,7 +316,7 @@ export function PostCard({ post }: any) {
             <Heart className={`h-4 w-4 ${liked ? "fill-red-500 text-red-500" : ""}`} />
             Like
           </Button>
-          <Button variant="ghost" className="flex-1 gap-2">
+          <Button variant="ghost" className="flex-1 gap-2" onClick={() => setReplyingTo(null)}>
             <MessageCircle className="h-4 w-4" /> Comment
           </Button>
           <Button variant="ghost" className="flex-1 gap-2">
@@ -218,20 +324,106 @@ export function PostCard({ post }: any) {
           </Button>
         </div>
 
-        <div className="mt-3 space-y-2">
+        {/* ===== COMMENTS & REPLIES ===== */}
+        <div className="mt-3 space-y-3">
           {comments?.map((comment: any) => (
-            <div key={comment.id} className="flex gap-2 bg-gray-100 dark:bg-gray-800 p-2 rounded">
-              <Avatar className="h-6 w-6">
-                <AvatarImage src={comment.author?.image || "/placeholder.svg"} />
-                <AvatarFallback>{comment.author?.username?.[0] || "U"}</AvatarFallback>
-              </Avatar>
-              <div>
-                <p><strong>{comment.author?.username}</strong> {comment.content}</p>
-                <span className="text-xs text-gray-500">{new Date(comment.createdAt).toLocaleString()}</span>
+            <div
+              key={comment.id}
+              className={`flex flex-col gap-2 p-3 rounded-lg ${
+                replyingTo === comment.id ? "bg-blue-50 dark:bg-blue-900" : "bg-gray-100 dark:bg-gray-800"
+              }`}
+            >
+              <div className="flex gap-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={comment.author?.image || "/placeholder.svg"} />
+                  <AvatarFallback>{comment.author?.username?.[0] || "U"}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <p className="text-sm">
+                    <strong>{comment.author?.username}</strong> {comment.content}
+                  </p>
+                  <span className="text-xs text-gray-500">
+                    {new Date(comment.createdAt).toLocaleString()}
+                  </span>
+
+                  <div className="flex gap-4 mt-1 text-xs text-gray-400">
+                    <button
+                      onClick={() => setReplyingTo(comment.id)}
+                      className="hover:text-blue-500"
+                    >
+                      Reply
+                    </button>
+
+                    {(comment.author?.id === currentUser?.id || comment.author?._id === currentUser?.id) && (
+                      <button
+                        onClick={() => handleDeleteComment(comment.id)}
+                        className="hover:text-red-500"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+
+                  {/* ADD REPLY INPUT */}
+                  {replyingTo === comment.id && (
+                    <div className="flex gap-2 mt-2">
+                      <Input
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                        placeholder="Write a reply…"
+                        className="bg-gray-200 dark:bg-gray-700"
+                      />
+                      <Button size="icon" onClick={() => handleAddReply(comment.id)}>
+                        <Send className="h-4 w-4" />
+                      </Button>
+                      <Button size="icon" variant="ghost" onClick={() => setReplyingTo(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* REPLIES */}
+                  {comment.replies?.length > 0 && (
+                    <div className="ml-10 mt-2 space-y-2 border-l border-gray-300 dark:border-gray-600 pl-3">
+                      {comment.replies.map((reply: any) => (
+                        <div key={reply.id} className="flex flex-col gap-1">
+                          <div className="flex gap-2 items-start">
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src={reply.author?.image || "/placeholder.svg"} />
+                              <AvatarFallback>{reply.author?.username?.[0] || "U"}</AvatarFallback>
+                            </Avatar>
+                            <div className="bg-gray-200 dark:bg-gray-700 rounded-xl px-2 py-1">
+                              <p className="text-sm">
+                                <strong>{reply.author?.username}</strong>{" "}
+                                <span className="text-gray-500 text-xs">
+                                  @{comment.author?.username} {/* parent reference */}
+                                </span>
+                                : {reply.content}
+                              </p>
+                              <span className="text-xs text-gray-400">
+                                {new Date(reply.createdAt).toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+
+                          {(reply.author?.id === currentUser?.id || reply.author?._id === currentUser?.id) && (
+                            <button
+                              onClick={() => handleDeleteComment(reply.id)}
+                              className="text-red-500 text-xs ml-8"
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))}
 
+          {/* ADD NEW COMMENT */}
           <div className="flex items-center gap-2 mt-2">
             <Input
               value={newComment}
